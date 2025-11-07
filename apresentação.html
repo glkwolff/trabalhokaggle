@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Vendas de Jogos de Vídeo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117; /* Dark theme background */
+            color: #e6e6e6; /* Light text */
+            overflow: hidden; /* Control scrolling via JS */
+        }
+        .slide {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            box-sizing: border-box;
+            background-color: #161b22; /* Slightly lighter dark background for contrast */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: transform 0.5s ease-in-out;
+        }
+        .slide:nth-child(even) {
+            background-color: #0d1117;
+        }
+        .iframe-container {
+            width: 90%;
+            height: 70%;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            /* Corrigido: Mantive o background branco aqui porque a fonte Plotly é clara por padrão,
+               mas o correto é mudar o template do gráfico Plotly para 'plotly_dark' */
+            background: white; 
+            padding: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+            pointer-events: all; /* Allows interaction inside the iframe */
+        }
+        .nav-button {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(60, 60, 60, 0.7);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 9999px;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 1000;
+            transition: background-color 0.3s, opacity 0.3s;
+            line-height: 1;
+            user-select: none;
+        }
+        .nav-button:hover:not(.opacity-50) {
+            background-color: rgba(90, 90, 90, 0.9);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Botões de Navegação -->
+    <div id="prevBtn" class="nav-button left-4" onclick="prevSlide()">&#10094;</div>
+    <div id="nextBtn" class="nav-button right-4" onclick="nextSlide()">&#10095;</div>
+
+    <!-- SLIDE 1: Capa -->
+    <section class="slide text-center" id="slide-0">
+        <h1 class="text-6xl font-extrabold mb-4 text-cyan-400">Análise de Vendas de Jogos de Vídeo</h1>
+        <h2 class="text-3xl font-light mb-12 text-gray-300">Explorando Tendências de Mercado e Padrões Regionais (1980–2016)</h2>
+        <div class="p-8 bg-gray-800 rounded-xl max-w-3xl">
+            <h3 class="text-2xl font-semibold mb-4 text-yellow-300">Objetivo do Estudo</h3>
+            <p class="text-lg leading-relaxed text-gray-200">
+                Identificar tendências de vendas de jogos de vídeo e padrões regionais de consumo, utilizando o dataset VG Sales para insights sobre a indústria.
+            </p>
+        </div>
+    </section>
+
+    <!-- SLIDE 2: Metodologia e Contexto -->
+    <section class="slide text-left" id="slide-1">
+        <h1 class="text-5xl font-bold mb-10 text-cyan-400">Metodologia e Preparação de Dados</h1>
+        <div class="grid grid-cols-2 gap-12 max-w-5xl">
+            <div>
+                <h3 class="text-3xl font-semibold mb-4 text-yellow-300">Tarefas de Preparação</h3>
+                <ul class="space-y-4 text-lg list-none p-0">
+                    <li class="flex items-start">
+                        <span class="text-green-400 mr-3 mt-1">✓</span> 
+                        <p><strong>Limpeza de Dados:</strong> Tratamento de valores ausentes (Nulos) nas colunas chave (`Year_of_Release`, `Genre`).</p>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-400 mr-3 mt-1">✓</span> 
+                        <p><strong>Transformação:</strong> Garantia de tipos corretos e agregação de dados para visualização temporal e hierárquica.</p>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-400 mr-3 mt-1">✓</span> 
+                        <p><strong>EDA:</strong> Análise Exploratória inicial para identificar distribuições e outliers.</p>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-3xl font-semibold mb-4 text-yellow-300">Ferramentas Utilizadas</h3>
+                <ul class="space-y-4 text-lg list-none p-0">
+                    <li class="flex items-start">
+                        <span class="text-purple-400 mr-3 mt-1">⬢</span> 
+                        <p><strong>Pandas:</strong> Manipulação e limpeza eficientes do dataset.</p>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-purple-400 mr-3 mt-1">⬢</span> 
+                        <p><strong>Matplotlib/Seaborn:</strong> Para visualizações estáticas complementares (não mostradas nos slides interativos).</p>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-purple-400 mr-3 mt-1">⬢</span> 
+                        <p><strong>Plotly:</strong> Para a criação de todos os gráficos interativos que serão explorados nos próximos slides.</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 3: Evolução Anual das Vendas por Região (evolucao_vendas_regiao.html) -->
+    <section class="slide" id="slide-2">
+        <h1 class="text-5xl font-bold mb-4 text-cyan-400">1. Evolução Anual das Vendas Globais e Regionais</h1>
+        <p class="text-xl mb-4 text-gray-300">Análise de tendências históricas e a ascensão e queda dos principais mercados.</p>
+        <div class="iframe-container">
+            <!-- Referenciando o arquivo externo, desde que esteja na mesma pasta. -->
+            <iframe src="graficos/evolucao_vendas_regiao.html"></iframe>
+        </div>
+    </section>
+
+    <!-- SLIDE 4: Distribuição de Vendas por Gênero e Plataforma (sunburst_vendas.html) -->
+    <section class="slide" id="slide-3">
+        <h1 class="text-5xl font-bold mb-4 text-cyan-400">2. Distribuição de Vendas: Gênero vs. Plataforma</h1>
+        <p class="text-xl mb-4 text-gray-300">O gráfico Sunburst revela a hierarquia das vendas: qual gênero domina, e em qual plataforma.</p>
+        <div class="iframe-container">
+            <!-- Referenciando o arquivo externo, desde que esteja na mesma pasta. -->
+            <iframe src="graficos/sunburst_vendas.html"></iframe>
+        </div>
+    </section>
+    
+    <!-- SLIDE 5: Top 20 Jogos Globais (top_20_jogos.html) -->
+    <section class="slide" id="slide-4">
+        <h1 class="text-5xl font-bold mb-4 text-cyan-400">3. Os 20 Jogos Mais Vendidos Globalmente</h1>
+        <p class="text-xl mb-4 text-gray-300">Análise detalhada do desempenho dos títulos de maior sucesso e suas respectivas plataformas.</p>
+        <div class="iframe-container">
+            <!-- Referenciando o arquivo externo, desde que esteja na mesma pasta. -->
+            <iframe src="graficos/top_20_jogos.html"></iframe>
+        </div>
+    </section>
+
+    <!-- SLIDE 6: Distribuição por Editora (treemap_publishers.html) -->
+    <section class="slide" id="slide-5">
+        <h1 class="text-5xl font-bold mb-4 text-cyan-400">4. Influência das Editoras no Mercado</h1>
+        <p class="text-xl mb-4 text-gray-300">Visualização Tree Map da fatia de mercado (vendas globais) dominada pelas principais editoras.</p>
+        <div class="iframe-container">
+            <!-- Referenciando o arquivo externo, desde que esteja na mesma pasta. -->
+            <iframe src="graficos/treemap_publishers.html"></iframe>
+        </div>
+    </section>
+    
+    <!-- SLIDE 7: Vendas vs. Ano de Lançamento (scatter_vendas_ano.html) -->
+    <section class="slide" id="slide-6">
+        <h1 class="text-5xl font-bold mb-4 text-cyan-400">5. Correlação entre Vendas e Ano de Lançamento</h1>
+        <p class="text-xl mb-4 text-gray-300">Análise de dispersão para identificar a relação entre o ano de lançamento e o volume total de vendas.</p>
+        <div class="iframe-container">
+            <!-- Referenciando o arquivo externo, desde que esteja na mesma pasta. -->
+            <iframe src="graficos/scatter_vendas_ano.html"></iframe>
+        </div>
+    </section>
+
+    <!-- SLIDE 8: Conclusões e Recomendações -->
+    <section class="slide text-left" id="slide-7">
+        <h1 class="text-6xl font-extrabold mb-10 text-yellow-300">Conclusões e Limitações do Dataset</h1>
+        <div class="grid grid-cols-2 gap-12 max-w-6xl">
+            <div>
+                <h3 class="text-3xl font-semibold mb-4 text-cyan-400">Principais Descobertas</h3>
+                <ul class="space-y-4 text-xl list-disc list-inside">
+                    <li>O pico de vendas da indústria ocorreu por volta de 2008-2010.</li>
+                    <li>América do Norte (NA) e Europa (EU) mantiveram-se como mercados globais dominantes.</li>
+                    <li>Gêneros populares como *Action* e *Sports* demonstram a maior participação nas vendas totais.</li>
+                    <li>Editoras como Nintendo, Sony e EA exercem grande influência no mercado.</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-3xl font-semibold mb-4 text-cyan-400">Limitações na Coleta de Dados Históricos</h3>
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <p class="text-lg mb-2 font-bold text-red-300">Entendendo o viés dos dados de vendas globais (VG Sales):</p>
+                    <ul class="space-y-3 text-lg list-disc list-inside ml-4 text-gray-300">
+                        <li><strong>Viés de Mídia Física:</strong> O dataset tem um forte viés para vendas de cópias físicas (varejo), ignorando a maior parte das vendas digitais (downloads, assinaturas, mobile).</li>
+                        <li><strong>Período Desatualizado:</strong> A coleta de dados se encerra aproximadamente em 2016, não refletindo a evolução e o crescimento do mercado digital e móvel nos anos seguintes.</li>
+                        <li><strong>Impacto do Bundle:</strong> Títulos de alto ranking, como o Wii Sports (Gráfico 3), frequentemente incluem vendas via bundle (jogo junto ao console), o que pode inflar artificialmente sua posição na lista.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        /**
+         * Controla a visibilidade e posição dos slides.
+         * @param {number} index - O índice do slide para exibir.
+         */
+        function showSlide(index) {
+            // Lógica para loop ou parar nas extremidades
+            if (index >= totalSlides) {
+                currentSlide = 0; // Volta para o primeiro slide
+            } else if (index < 0) {
+                currentSlide = totalSlides - 1; // Vai para o último slide
+            } else {
+                currentSlide = index;
+            }
+
+            // Move todos os slides verticalmente para mostrar apenas o slide atual
+            slides.forEach((slide, i) => {
+                slide.style.transform = `translateY(${(i - currentSlide) * 100}vh)`;
+            });
+
+            // Atualiza a opacidade dos botões
+            prevBtn.classList.toggle('opacity-50', currentSlide === 0);
+            nextBtn.classList.toggle('opacity-50', currentSlide === totalSlides - 1);
+        }
+
+        /** Move para o próximo slide. */
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        /** Move para o slide anterior. */
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Inicialização e navegação por teclado
+        document.addEventListener('DOMContentLoaded', () => {
+            // Oculta o scroll padrão e posiciona os slides
+            document.body.style.overflow = 'hidden';
+            slides.forEach((slide, i) => {
+                slide.style.position = 'absolute';
+                slide.style.top = '0';
+                slide.style.left = '0';
+                slide.style.transition = 'transform 0.5s ease-in-out';
+            });
+            showSlide(currentSlide);
+        });
+
+        // Navegação por teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+    </script>
+</body>
+</html>
